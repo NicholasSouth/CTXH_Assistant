@@ -1,0 +1,18 @@
+Dạy nghề, chuyên môn cho thanh niên | 005101 | Tham gia dạy nghề, chuyên môn cho thanh niên địa phương (01 tuần) | 20-30 điểm | 2-3 ngày CTXH
+Dạy nghề, chuyên môn cho thanh niên | 005102 | Tham gia giúp địa phương tin học hóa công tác quản lý (01 tuần) | 20-30 điểm | 2-3 ngày CTXH
+Dạy học cho các cháu có hoàn cảnh khó khăn | 005201 | Tham gia phổ cập văn hóa cho các cháu theo yêu cầu của địa phương (01 tuần) | 20-30 điểm | 2-3 ngày CTXH
+Dạy học cho các cháu có hoàn cảnh khó khăn | 005202 | Tham gia dạy kèm các cháu có hoàn cảnh khó khăn (01 tuần) | 20-30 điểm | 2-3 ngày CTXH
+Quyên góp ủng hộ các địa phương khó khăn | 005301 | Tổ chức quyên góp hỗ trợ cho các địa phương khó khăn (01 đợt) | 10-20 điểm | 1-2 ngày CTXH
+Quyên góp ủng hộ các địa phương khó khăn | 005302 | Tổ chức các hoạt động giao lưu, đỡ đầu các trường học vùng khó khăn (01 lần) | 10-20 điểm | 1-2 ngày CTXH
+Hoàn thành nhiệm vụ cán bộ đoàn, hội, lớp, ban chủ nhiệm câu lạc bộ | 006101 | Hoàn thành nhiệm vụ cán bộ đoàn, hội từ cấp trường trở lên (có QĐ bổ nhiệm, chuẩn y, giao nhiệm vụ, đánh giá trách nhiệm cuối năm/tính theo năm học ) | 20-40 điểm | 2-4 ngày CTXH
+Hoàn thành nhiệm vụ cán bộ đoàn, hội, lớp, ban chủ nhiệm câu lạc bộ | 006102 | Hoàn thành nhiệm vụ cán bộ đoàn, hội cấp khoa/TT & tương đương (có QĐ bổ nhiệm, chuẩn y, giao nhiệm vụ, đánh giá trách nhiệm cuối năm/tính theo năm học ) | 15-30 điểm | 1.5-3 ngày CTXH
+Hoàn thành nhiệm vụ cán bộ đoàn, hội, lớp, ban chủ nhiệm câu lạc bộ | 006103 | Hoàn thành nhiệm vụ cán bộ chi đoàn, chi hội, lớp, ban chủ nhiệm câu lạc bộ, đội cờ đỏ (có QĐ bổ nhiệm, chuẩn y, giao nhiệm vụ, đánh giá trách nhiệm cuối năm/tính theo năm học ) | 10-20 điểm | 1-2 ngày CTXH
+Tổ chức và tham gia các phong trào | 006201 | Tổ chức các hoạt động văn nghệ, thể dục thể thao, các phong trào (ban chỉ đạo, ban tổ chức, ban giám khảo,.../ theo đợt hoặc hội thi, hội thao/ cấp trường. | 15-30 điểm | 1.5-3 ngày CTXH
+Tổ chức và tham gia các phong trào | 006202 | Tổ chức các hoạt động văn nghệ, thể dục thể thao, các phong trào (ban chỉ đạo, ban tổ chức, ban giám khảo,.../ theo đợt hoặc hội thi, hội thao/ cấp khoa/TT. | 10-20 điểm | 1-2 ngày CTXH
+Tổ chức và tham gia các phong trào | 006203 | Tham gia thi (biểu diễn, thi đấu) văn hóa, chuyên môn, tay nghề, văn nghệ, thể dục thể thao,.../cấp quốc tế/theo cuộc thi | 15-30 điểm | 1.5-3 ngày CTXH
+Tổ chức và tham gia các phong trào | 006204 | Tham gia thi (biểu diễn, thi đấu) văn hóa, chuyên môn, tay nghề, văn nghệ, thể dục thể thao,.../cấp thành, ngành /theo cuộc thi | 10-20 điểm | 1-2 ngày CTXH
+Tổ chức và tham gia các phong trào | 006205 | Tham gia thi (biểu diễn, thi đấu) văn hóa, chuyên môn, tay nghề, văn nghệ, thể dục thể thao,.../cấp trường /theo cuộc thi | 5-10 điểm | 0.5-1 ngày CTXH
+Tổ chức và tham gia các phong trào | 006206 | Tham gia thi (biểu diễn, thi đấu) văn hóa, chuyên môn, tay nghề, văn nghệ, thể dục thể thao,.../cấp khoa/TT/theo cuộc thi | 5 điểm | 0.5 ngày CTXH
+Tổ chức và tham gia các phong trào | 006207 | Hoàn thành nhiệm vụ đội viên đội cờ đỏ, cộng tác viên do các đơn vị trong trường cử & giao việc, đánh giá trách nhiệm cuối năm /theo năm học. | 10-20 điểm | 1-2 ngày CTXH
+Tổ chức và tham gia các phong trào | 006208 | Hoàn thành nhiệm vụ tư vấn viên do các đơn vị trong trường cử & giao việc, đánh giá trách nhiệm cuối năm /theo năm học. | 10-20 điểm | 1-2 ngày CTXH
+Tổ chức và tham gia các phong trào | 006209 | Hoàn thành nhiệm vụ trợ lý giảng dạy do bộ môn/khoa cử & giao việc, đánh giá trách nhiệm cuối học kỳ/theo học kỳ (SV tự nguyện không nhận thù lao). | 10-20 điểm | 1-2 ngày CTXH

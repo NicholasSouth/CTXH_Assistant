@@ -1,0 +1,92 @@
+[
+  {
+    "activity_id": "A001",
+    "name": "Hiến máu tình nguyện đợt 1",
+    "code": "001202",
+    "date": "2026-11-15",
+    "organizer": "Đoàn trường",
+    "capacity": 50,
+    "status": "open"
+  },
+  {
+    "activity_id": "A002",
+    "name": "Hiến máu tình nguyện đợt 2",
+    "code": "001202",
+    "date": "2026-12-06",
+    "organizer": "Hội Sinh viên trường",
+    "capacity": 40,
+    "status": "open"
+  },
+  {
+    "activity_id": "A003",
+    "name": "Dạy kèm cho học sinh khó khăn",
+    "code": "005202",
+    "date": "2026-11-22",
+    "organizer": "CLB Tình nguyện",
+    "capacity": 20,
+    "status": "open"
+  },
+  {
+    "activity_id": "A004",
+    "name": "Dọn vệ sinh môi trường khuôn viên trường",
+    "code": "002103",
+    "date": "2026-11-08",
+    "organizer": "Liên chi Đoàn Khoa CNTT",
+    "capacity": 60,
+    "status": "open"
+  },
+  {
+    "activity_id": "A005",
+    "name": "Mùa hè xanh - Chiến dịch tình nguyện",
+    "code": "001102",
+    "date": "2027-07-10",
+    "organizer": "Đoàn trường",
+    "capacity": 30,
+    "status": "open"
+  },
+  {
+    "activity_id": "A006",
+    "name": "Tiếp sức mùa thi",
+    "code": "001502",
+    "date": "2027-06-20",
+    "organizer": "Hội Sinh viên trường",
+    "capacity": 25,
+    "status": "open"
+  },
+  {
+    "activity_id": "A007",
+    "name": "Thăm và tặng quà trung tâm bảo trợ trẻ em",
+    "code": "004204",
+    "date": "2026-12-20",
+    "organizer": "CLB Tình nguyện",
+    "capacity": 15,
+    "status": "open"
+  },
+  {
+    "activity_id": "A008",
+    "name": "Hướng dẫn tân sinh viên nhập học",
+    "code": "001701",
+    "date": "2026-09-05",
+    "organizer": "Phòng Công tác học sinh sinh viên",
+    "capacity": 40,
+    "status": "closed"
+  },
+  {
+    "activity_id": "A009",
+    "name": "Quyên góp sách cũ cho thư viện vùng sâu",
+    "code": "005301",
+    "date": "2026-11-29",
+    "organizer": "Liên chi Hội Khoa CNTT",
+    "capacity": 2,
+    "status": "open"
+  },
+  {
+    "activity_id": "A010",
+    "name": "Xuân tình nguyện",
+    "code": "001301",
+    "date": "2027-02-01",
+    "organizer": "Đoàn trường",
+    "capacity": 35,
+    "status": "open"
+  }
+]

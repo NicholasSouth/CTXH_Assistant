@@ -1,0 +1,17 @@
+III. QUY TRÌNH TỔ CHỨC & ĐÁNH GIÁ CÔNG TÁC XÃ HỘI.
+Việc tổ chức triển khai, đánh giá, quản lý, sử dung kết quả ngày CTXH được thực hiện bởi một module trong cổng thông tin điện tử của nhà trường (phần mềm PSC). Việc tổ chức nội dung hoạt động CTXH theo quy trình gồm các bước sau đây:
+1. Bước 1: Lập kế hoạch tổ chức hoạt động CTXH:
+Kế hoạch tổ chức hoạt động CTXH được xây dựng & công bố định kỳ vào đầu mỗi học kỳ và được bổ sung hàng tháng. Kế hoạch nêu rõ: Nội dung hoạt động, không gian & thời gian tổ chức; đơn vị chủ trì tổ chức & đánh giá, ban tổ chức triển khai hoạt động CTXH; quy mô SV có thể tham gia, đối tượng SV tham gia; dự kiến số điểm & số ngày CTXH được quy đổi; dự toán kinh phí & nguồn chi.
+a. Hoạt động tại trường:
+Trưởng các khoa/phòng/ban/TT; Ban thường vụ, Ban thư ký tổ chức Đoàn - Hội từ cấp khoa/TT trở lên quyết định tổ chức hoạt động CTXH để SV đăng ký tham gia;
+Ban đại diện lớp, BCH chi đoàn, chi hội có trách nhiệm đề xuất với lãnh đạo các đơn vị tổ chức hoạt động CTXH để SV đăng ký tham gia.
+b. Hoạt động tại các địa phương.
+Các đơn vị, tổ chức (tổ chức chính quyền, tổ chức đoàn thể từ cấp cơ sở trở lên; công ty/doanh nghiệp; bệnh viện, trường học,...) đề xuất với nhà trường bằng văn bản cho phép SV về tham gia hoạt động CTXH. Phòng Công tác HSSV, Đoàn trường & Hội SV trường là đầu mối tiếp nhận đề nghị nói trên và quyết định tổ chức hoạt động CTXH tại địa phương;
+Tập thể hoặc cá nhân SV chủ động đề xuất với địa phương để về tổ chức các hoạt động CTXH. Nếu địa phương đồng ý, đề xuất với nhà trường bằng văn bản cho phép tổ chức hoạt động CTXH. Phòng Công tác HSSV, Đoàn trường & Hội SV trường là đầu mối tiếp nhận đề nghị nói trên và quyết định tổ chức hoạt động CTXH tại địa phương.
+2. Bước 2: Lập kế hoạch hoạt động CTXH trên cổng thông tin PSC; Tổ chức cho SV đăng ký tham gia hoạt động CTXH.
+Phòng công tác HSSV có trách nhiệm tổng hợp, điều chỉnh kế hoạch trong toàn trường & lập kế hoạch hoạt động CTXH trên cổng thông tin PSC để SV đăng ký.
+Phòng công tác HSSV chịu trách nhiệm tổ chức cho SV đăng ký tham gia hoạt động CTXH trên cổng thông tin PSC hoặc qua văn bản (như đăng ký môn học).
+Với chương trình hoạt động CTXH có số lượng SV đăng ký tham gia vượt quá quy mô, ưu tiên cho sinh viên đăng ký trước.
+3. Bước 3: Tổ chức thực hiện & đánh giá hoạt động CTXH theo kế hoạch
+a. Tại trường: Trưởng các khoa/phòng/ban/TT; Ban thường vụ, Ban thư ký tổ chức Đoàn - Hội cấp khoa/TT & cấp trường chịu trách nhiệm trước Hiệu trưởng về việc tổ chức và đánh giá kết quả hoạt động CTXH do đơn vị triển khai.
+b. Tại địa phương: Phòng Công tác HSSV, Đoàn trường & Hội SV trường phối hợp với địa phương tổ chức thực hiện và đánh giá kết quả hoạt động CTXH tại địa phương. Với những hoạt động CTXH phức tạp, nguy hiểm, dài ngày, số lượng SV tham gia đông, phải ký hợp đồng trách nhiệm (hợp đồng, văn bản liên tịch, biên bản ghi nhớ,...) giữa trường với địa phương. Phòng Công tác HSSV có trách nhiệm thẩm định, xác minh kết quả đánh giá CTXH của SV.
