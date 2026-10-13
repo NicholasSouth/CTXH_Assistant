@@ -12,7 +12,7 @@ class DocumentStore:
             document.doc_id = f"DOC_{len(self.documents) + 1:04d}"
         self.documents[document.doc_id] = document
 
-        chunks = chunk_document(document, chunk_size=150, overlap=30)
+        chunks = chunk_document(document)
         for c in chunks:
             self.add_chunk(c)
 

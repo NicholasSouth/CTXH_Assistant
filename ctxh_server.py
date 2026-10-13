@@ -170,7 +170,7 @@ def get_document(doc_id: str) -> str:
 
     The text is rebuilt by joining the document's chunks in order, so a few
     sentences may appear twice where chunks overlap. Output is truncated after
-    4000 characters, with '[... truncated ...]' added at the end. If the doc_id
+    6000 characters, with '[... truncated ...]' added at the end. If the doc_id
     does not exist, returns "No document with id '<doc_id>'."
     """
 
@@ -185,9 +185,9 @@ def get_document(doc_id: str) -> str:
     # sort the chunks in order too, make it easier for the agent to understand the context
     chunks.sort(key=lambda c: c.chunk_index)
     text = '\n'.join(c.content for c in chunks)
-    # cap the text at 4000 incase overloading
-    if len(text) > 4000:
-        text = text[:4000] + '\n[... truncated ...]'
+    # cap the text at 6000 (original 400) incase overloading
+    if len(text) > 6000:
+        text = text[:6000] + '\n[... truncated ...]'
     return text
 
 @mcp.tool()
