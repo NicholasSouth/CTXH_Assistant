@@ -20,7 +20,7 @@ class DocumentChunk:
     metadata: dict=field(default_factory=dict)
     embedding: Optional[list[float]] = None
 
-def chunk_document(doc: Document, chunk_size: int = 900, overlap: int = 150):
+def chunk_document(doc: Document, chunk_size: int = 800, overlap: int = 150):
     chunks = []
     text = doc.content
     start = 0
