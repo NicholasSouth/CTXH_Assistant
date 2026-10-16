@@ -352,6 +352,17 @@ async def run_agent(client: CtxhClient, specs: list[ToolSpec], question: str,
     result.latency = round(time.time() - t0, 2)
     return result
 
+def usage_of(result: RunResult) -> dict:
+    return {
+        "calls": len(result.steps),
+        "prompt_tokens": result.prompt_tokens,
+        "completion_tokens": result.completion_tokens,
+        "total_tokens": result.prompt_tokens + result.completion_tokens,
+        "max_prompt": max((s.prompt_tokens for s in result.steps), default=0),
+        "latency_seconds": result.latency,
+        "steps": len(result.steps),
+    }
+
 class RunLogger:
     """Writes one logs/run_*.jsonl file per run, one line per question."""
 
@@ -370,13 +381,7 @@ class RunLogger:
             "finished": result.finished,
             "error": result.error,
             "model": result.model,
-            "usage": {                                   
-                "prompt_tokens": result.prompt_tokens,
-                "completion_tokens": result.completion_tokens,
-                "total_tokens": result.prompt_tokens + result.completion_tokens,
-                "latency_seconds": result.latency,
-                "steps": len(result.steps),
-            },
+            "usage": usage_of(result),
             "steps": [asdict(s) for s in result.steps],   
             "contexts": result.contexts,                  
         }
