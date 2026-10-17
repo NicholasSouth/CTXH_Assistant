@@ -99,21 +99,34 @@ def call_llm(messages: list[dict], model: str = LLM_MODEL,
         return result
 
 @dataclass
+class ToolParam:
+    name: str
+    type: str
+    required: bool
+    default: object = None
+    has_default: bool = False
+
+@dataclass
 class ToolSpec:
     name: str
     description: str
-    input_schema: dict
+    params: list[ToolParam]
+
+def parse_params(schema: dict) -> list[ToolParam]:
+    """Chuyển JSON schema của server thành dataclass"""
+    required = set(schema.get("required", []))
+    return [ToolParam(name, p.get("type", "any"), name in required,
+                      p.get("default"), "default" in p)
+            for name, p in schema.get("properties", {}).items()]
 
 def render_tools(specs: list[ToolSpec]) -> str:
     blocks = []
     for t in specs:
-        props = t.input_schema.get("properties", {})
-        required = set(t.input_schema.get("required", []))
         params = []
-        for pname, p in props.items():
-            s = f"{pname}: {p.get('type', 'any')}"
-            if pname not in required and "default" in p:
-                s += f" = {json.dumps(p['default'], ensure_ascii=False)}"
+        for p in t.params:
+            s = f"{p.name}: {p.type}"
+            if not p.required and p.has_default:
+                s += f" = {json.dumps(p.default, ensure_ascii=False)}"
             params.append(s)
         blocks.append(f"- {t.name}({', '.join(params)})\n  {' '.join(t.description.split())}")
     return "\n".join(blocks)
@@ -156,13 +169,13 @@ def validate_action(specs: list[ToolSpec], name: str, args: dict) -> str | None:
     spec = next((t for t in specs if t.name == name), None)
     if spec is None:
         return f"Error: unknown tool '{name}'. Available: {', '.join(t.name for t in specs)}"
-    props = spec.input_schema.get("properties", {})
-    missing = [r for r in spec.input_schema.get("required", []) if r not in args]
+    names = [p.name for p in spec.params]
+    missing = [p.name for p in spec.params if p.required and p.name not in args]
     if missing:
         return f"Error: missing argument(s) {missing} for '{name}'."
-    extra = [k for k in args if k not in props]
+    extra = [k for k in args if k not in names]
     if extra:
-        return f"Error: unknown argument(s) {extra} for '{name}'. Allowed: {list(props)}."
+        return f"Error: unknown argument(s) {extra} for '{name}'. Allowed: {names}."
     return None
 
 @dataclass
@@ -246,7 +259,7 @@ class CtxhClient:
 
     async def list_tools(self) -> list[ToolSpec]:
         tools = (await self._client.list_tools()).tools
-        return [ToolSpec(t.name, t.description or "", t.input_schema) for t in tools]
+        return [ToolSpec(t.name, t.description or "", parse_params(t.input_schema)) for t in tools]
 
     async def call_tool(self, name: str, args: dict) -> str:
         try:
