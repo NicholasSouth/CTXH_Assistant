@@ -1,0 +1,17 @@
+[project]
+name = "ctxhassistant"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "groq>=1.7.0",
+    "langchain<1",
+    "langchain-community<0.4",
+    "langchain-core<1",
+    "langchain-openai<1",
+    "mcp>=2,<3",
+    "numpy>=2.5.4",
+    "openai>=2.54.0",
+    "python-dotenv>=1.2.4",
+    "ragas==0.4.3",
+    "rank-bm25>=0.2.2",
+]
