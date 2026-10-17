@@ -1,10 +1,8 @@
 import json
 import re
-import sys
 import unicodedata
 import argparse
 import asyncio
-import time
 from collections import Counter
 from pathlib import Path
 from dataclasses import asdict
@@ -12,7 +10,6 @@ from datetime import datetime
 # for tabular writing, building cache key, detect invalid mathematic results like 5/0,
 # read JUDGE_MODEL env var, add rando for retry delay, compute standard deviation
 import csv, hashlib, math, os, random, statistics
-
 
 from ctxh_agent import CtxhClient, RunResult, run_agent, LOG_DIR, usage_of
 
@@ -24,13 +21,13 @@ MIN_NO_ANSWER = 4
 VALID_TYPES = {"answerable", "no_answer"}
 VALID_SCOPES = {"in_domain", "out_of_domain"}
 
-# ───────────────────────── Bước 1: đọc + kiểm tra testset ─────────────────────────
+# Read and validate the testset
 
 def _is_str_list(v) -> bool:
     return isinstance(v, list) and len(v) > 0 and all(isinstance(x, str) and x.strip() for x in v)
 
 def _validate_item(item: dict) -> list[str]:
-    """Trả về danh sách lỗi của một dòng testset (rỗng nếu hợp lệ)."""
+    """Return the list of errors for one testset line (empty if valid)."""
     errs: list[str] = []
 
     if not isinstance(item.get("id"), str) or not item["id"].strip():
@@ -77,7 +74,7 @@ def _validate_totals(items: list[dict]) -> list[str]:
     return errs
 
 def load_testset(path: Path = TESTSET_PATH) -> list[dict]:
-    """Đọc JSONL, kiểm tra toàn bộ rồi mới báo lỗi một lượt. Lỗi thì raise ValueError."""
+    """Read the JSONL, validate everything, then report all errors at once. Raise ValueError on errors."""
     errors: list[str] = []
     items: list[dict] = []
     seen: set[str] = set()
@@ -119,17 +116,17 @@ def summarize_testset(items: list[dict]) -> None:
     for scope, n in sorted(by_scope.items()):
         print(f"  no_answer/{scope}: {n}")
 
-# ───────────────────────── Bước 4: chấm từ chối (chỉ no_answer) ─────────────────────────
+# Refusal scoring (only for no_answer questions)
 
 def fold(text: str) -> str:
-    """Lowercase, bỏ dấu tiếng Việt, gộp khoảng trắng."""
+    """Lowercase, strip Vietnamese diacritics, collapse whitespace."""
     text = text.replace("đ", "d").replace("Đ", "D")
     text = unicodedata.normalize("NFD", text)
     text = "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
     return re.sub(r"\s+", " ", text.lower()).strip()
 
 def is_refusal(answer: str, markers: list[str]) -> bool:
-    """True nếu câu trả lời chứa ít nhất một marker (so khớp sau khi chuẩn hóa)."""
+    """True if the answer contains at least one marker (matched after normalization)."""
     folded = fold(answer or "")
     return any(fold(m) in folded for m in markers if m.strip())
 
@@ -138,9 +135,9 @@ def _called_tool(result: dict, tool: str) -> bool:
 
 def score_refusal(items: list[dict], results: dict[str, dict]) -> dict:
     """
-    items:   danh sách dòng testset (đã qua load_testset).
-    results: {id câu: một dòng log} — mỗi log có 'answer', 'finished', 'steps' (mỗi step có 'tool').
-    Câu đạt khi: finished=True, có gọi search_documents, và câu trả lời chứa một refusal_marker.
+    items:   list of testset lines (already passed through load_testset).
+    results: {question id: one log line} — each log has 'answer', 'finished', 'steps' (each step has 'tool').
+    A question passes when: finished=True, search_documents was called, and the answer contains a refusal_marker.
     """
     details: list[dict] = []
     for it in items:
@@ -166,7 +163,7 @@ def score_refusal(items: list[dict], results: dict[str, dict]) -> dict:
             "scope": it["scope"],
             "passed": not reasons,
             "reasons": reasons,
-            "answer": answer,   # để đọc tay, thay cho 'forbidden'
+            "answer": answer,   # for manual reading
         })
 
     def _rate(rows: list[dict]) -> dict:
@@ -181,14 +178,14 @@ def score_refusal(items: list[dict], results: dict[str, dict]) -> dict:
         "details": details,
     }
 
-# ───────────────────────── Bước 2: chạy agent trên testset ─────────────────────────
+# Run the agent on the testset
 
 def _no_write_confirm(name: str, args: dict) -> bool:
-    """Eval không có người bấm y/n và testset không có câu đăng ký → luôn từ chối lệnh ghi."""
+    """Eval has no human to press y/n and the testset has no registration question → always decline write actions."""
     return False
 
 def build_entry(item: dict, result: RunResult, run_index: int) -> dict:
-    """Một dòng log của eval: cùng cấu trúc RunLogger, thêm 'id' testset và 'run'."""
+    """One eval log line: same structure as RunLogger, plus the testset 'id' and 'run'."""
     return {
         "id": item["id"],
         "run": run_index,
@@ -204,7 +201,7 @@ def build_entry(item: dict, result: RunResult, run_index: int) -> dict:
     }
 
 def _error_entry(item: dict, run_index: int, exc: Exception) -> dict:
-    """Entry cho câu lỗi bất ngờ ngoài run_agent: vẫn có đủ field để các bước chấm không vỡ."""
+    """Entry for an unexpected error outside run_agent: still has all fields so the scoring steps don't break."""
     return {
         "id": item["id"], "run": run_index,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -221,15 +218,15 @@ def _append_jsonl(path: Path, entry: dict) -> None:
 
 async def run_testset(client: CtxhClient, specs: list, items: list[dict],
                       run_index: int, log_path: Path, verbose: bool = False) -> dict[str, dict]:
-    """Chạy lần lượt từng câu (history rỗng), ghi log ngay sau mỗi câu.
-    Trả về {id câu: dòng log} — đúng dạng score_refusal() nhận."""
+    """Run the questions one by one (empty history), writing the log right after each question.
+    Return {question id: log line} — exactly the shape score_refusal() accepts."""
     results: dict[str, dict] = {}
     for n, item in enumerate(items, start=1):
         try:
             result = await run_agent(client, specs, item["question"], history=[],
                                      verbose=verbose, confirm=_no_write_confirm)
             entry = build_entry(item, result, run_index)
-        except Exception as e:            # lỗi bất ngờ: ghi lại rồi đi tiếp
+        except Exception as e:            # unexpected error: log it and move on
             entry = _error_entry(item, run_index, e)
 
         _append_jsonl(log_path, entry)
@@ -242,7 +239,7 @@ async def run_testset(client: CtxhClient, specs: list, items: list[dict],
     return results
 
 async def run_eval(items: list[dict], runs: int, verbose: bool = False) -> list[dict[str, dict]]:
-    """Khởi động server một lần, chạy `runs` lượt tuần tự, mỗi lượt một file log."""
+    """Start the server once, run `runs` passes sequentially, one log file per pass."""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     all_runs: list[dict[str, dict]] = []
 
@@ -255,18 +252,18 @@ async def run_eval(items: list[dict], runs: int, verbose: bool = False) -> list[
 
     return all_runs
 
-#_____Step 5: Scoring RAGAS
+# Scoring RAGAS
+
 RESULTS_DIR = _HERE / "results"
 JUDGE_MODEL = os.getenv("JUDGE_MODEL", "openai/gpt-oss-120b")
 JUDGE_TEMPERATURE = 0.0 # same input gave same score
 JUDGE_BASE_URL = "https://api.groq.com/openai/v1"
 JUDGE_MAX_TOKENS = 4096 # gpt oss needs a lot of token      
-JUDGE_TIMEOUT_S = 180
-JUDGE_RETRIES = 3
-JUDGE_WORKERS = 3 # how many question is judged at once
+JUDGE_TIMEOUT_S = 120
+JUDGE_RETRIES = 2
+JUDGE_WORKERS = 1 # how many question is judged at once
 RAGAS_METRICS = ("faithfulness", "context_recall")
 RAGAS_STATUSES = ("scored", "not_finished", "no_context", "judge_error")
-
 
 def _ragas_version() -> str | None:
     try:
@@ -274,17 +271,17 @@ def _ragas_version() -> str | None:
         return getattr(ragas, "__version__", "unknown")
     except ImportError:
         return None
-def _make_ragas_judge():
-    """Dựng giám khảo RAGAS (Groq qua đường OpenAI-compatible). Import trễ để --skip-ragas
-    và --selftest không cần cài ragas. Trả về coroutine: judge(sample) -> {metric: float}.
-    LƯU Ý: đây là phần DUY NHẤT phụ thuộc API của ragas 0.4.x. Nếu ragas báo lỗi tên hàm/tham số,
-    chỉ cần sửa trong hàm này; phần còn lại của file không đổi."""
     
+def _make_ragas_judge():
+    """
+    Build the RAGAS judge (Groq via the OpenAI-compatible endpoint). Imports are lazy so --skip-ragas
+    and --selftest don't need ragas installed. Returns a coroutine: judge(sample) -> {metric: float}.
+    """
     from openai import AsyncOpenAI
     from ragas.llms import llm_factory
     from ragas.metrics.collections import Faithfulness, ContextRecall
     client = AsyncOpenAI(api_key=os.getenv("GROQ_API_KEY"), base_url=JUDGE_BASE_URL,
-                         timeout=JUDGE_TIMEOUT_S, max_retries=0)
+                         timeout=JUDGE_TIMEOUT_S, max_retries=2)
     llm = llm_factory(JUDGE_MODEL, provider="openai", client=client,
                       temperature=JUDGE_TEMPERATURE, max_tokens=JUDGE_MAX_TOKENS)
     faithfulness = Faithfulness(llm=llm)
@@ -296,29 +293,34 @@ def _make_ragas_judge():
                                 reference=sample["reference"])
         return {"faithfulness": getattr(f, "value", f), "context_recall": getattr(r, "value", r)}
     return judge
+
 # decide which question to judge:
 # unfinished answers -> not fair; answers with no RAGs -> nothing to judge
 def ragas_status(res: dict | None) -> str:
-    """Nhãn trước khi chấm, theo đúng thứ tự: not_finished → no_context → ready (đủ điều kiện chấm)."""
+    """Pre-scoring label, in this order: not_finished → no_context → ready (eligible for scoring)."""
     if res is None or not res.get("finished") or res.get("error"):
         return "not_finished"
     if not res.get("contexts"):
         return "no_context"
     return "ready"
+
 # build what RAGAS needs: the question, the agent’s answer, 
 # the retrieved text, and the reference answer from the testset.
 def _sample_of(item: dict, res: dict) -> dict:
     return {"question": item["question"], "answer": res["answer"],
             "contexts": list(res["contexts"]), "reference": item["reference"]}
+
 # like biometric on phone, it hash the sample and the judge's setting
 # judging cost a lot of token so a rerun with fingerprint help skipping unchanged questions
 # reason why not use question_id is cuz it would reuse old scores 
 #   and a hash will ignore stuffs with old fingerprint
+
 def _fingerprint(sample: dict) -> str:
-    """Khóa cache: đổi câu trả lời, context, reference hoặc giám khảo thì điểm cũ không còn dùng được."""
+    """Cache key: if the answer, context, reference or judge changes, the old score can no longer be reused."""
     payload = json.dumps({**sample, "judge": JUDGE_MODEL, "temperature": JUDGE_TEMPERATURE},
                          sort_keys=True, ensure_ascii=False)
     return hashlib.sha1(payload.encode("utf-8")).hexdigest()
+
 def _load_cache(path: Path) -> dict:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -356,6 +358,7 @@ def _detail(status: str, scores: dict | None = None, error: str | None = None,
             "context_recall": (scores or {}).get("context_recall"), 
             "error": error, 
             "cached": cached}
+
 # the ragas scoring loop, the main logic
 async def _score_ragas_async(items, results, run_index, judge, rescore, workers, backoff, results_dir):
     cache_path = results_dir / f"ragas_run{run_index}.json"
@@ -403,6 +406,7 @@ async def _score_ragas_async(items, results, run_index, judge, rescore, workers,
             else:
                 details[qid] = _detail("scored", scores)
                 new_cache[qid] = {"key": key, **scores}
+    
     # success scores are stored in new cache
     if new_cache: # append cache -> no lost old cache
         results_dir.mkdir(parents=True, exist_ok=True)
@@ -414,20 +418,22 @@ async def _score_ragas_async(items, results, run_index, judge, rescore, workers,
         "counts": {s: sum(1 for d in details.values() if d["status"] == s) for s in RAGAS_STATUSES},
         **{m: _mean([d[m] for d in scored]) for m in RAGAS_METRICS},
     }
+
 # just a wrapper for score_rapas_async so _main can call it
 def score_ragas(items: list[dict], results: dict[str, dict], run_index: int, *, judge=None,
                 rescore: bool = False, workers: int = JUDGE_WORKERS, backoff: float = 2.0,
                 results_dir: Path = RESULTS_DIR) -> dict:
-    """Chấm faithfulness + context_recall cho các câu ragas=true của MỘT lượt.
-    Nhãn mỗi câu: not_finished (chưa xong/có lỗi) → no_context (contexts rỗng) → scored → judge_error.
-    Hai nhãn đầu bị loại khỏi mẫu; judge_error để trống điểm, không vào trung bình.
-    Trả về {"details": {id: {...}}, "counts": {nhãn: số câu}, "faithfulness": tb, "context_recall": tb}.
-    `judge` (tùy chọn): coroutine thay cho giám khảo thật, dùng để kiểm thử."""
+    """Score faithfulness + context_recall for the ragas=true questions of ONE run.
+    Per-question label: not_finished (unfinished/has error) → no_context (empty contexts) → scored → judge_error.
+    The first two labels are excluded from the sample; judge_error leaves the scores empty and stays out of the average.
+    Returns {"details": {id: {...}}, "counts": {label: number of questions}, "faithfulness": avg, "context_recall": avg}.
+    `judge` (optional): a coroutine replacing the real judge, used for testing."""
     
     return asyncio.run(_score_ragas_async(items, results, run_index, judge, rescore,
                                           workers, backoff, results_dir))
 
-#_____Step 6: csv and summary
+# csv and summary
+
 CSV_COLUMNS = ["run", "id", "type", "scope", "finished", "error", "ragas_status",
                "calls", "steps", "prompt_tokens", "completion_tokens", "total_tokens",
                "max_prompt", "latency_seconds",
@@ -438,11 +444,12 @@ CSV_COLUMNS = ["run", "id", "type", "scope", "finished", "error", "ragas_status"
 def _mean(xs) -> float | None:
     xs = [x for x in xs if x is not None]
     return round(sum(xs) / len(xs), 4) if xs else None
+
 def _std(xs) -> float | None:
-    """Độ lệch chuẩn mẫu (chia n-1). Dưới 2 giá trị thì không có."""
-    
+    """Sample standard deviation (divide by n-1). None if fewer than 2 values."""
     xs = [x for x in xs if x is not None]
     return round(statistics.stdev(xs), 4) if len(xs) >= 2 else None
+
 # bundles {mean, std, per_run} for the summary file.
 def _stat(per_run: list) -> dict:
     return {"mean": _mean(per_run), "std": _std(per_run), "per_run": per_run}
@@ -450,19 +457,18 @@ def _stat(per_run: list) -> dict:
 # count the search_document calls
 # this is the evidence that both retrieval modes were actually used.
 def count_modes(entry: dict | None) -> dict:
-    """Đếm các lần gọi search_documents theo mode: dense (kể cả khi bỏ trống), hybrid, other (giá trị sai)."""
-    
+    """Count search_documents calls by mode: dense (including when omitted), hybrid, other (invalid value)."""    
     c = {"dense": 0, "hybrid": 0, "other": 0}
     for s in (entry or {}).get("steps", []):
         if s.get("tool") == "search_documents":
             mode = (s.get("args") or {}).get("mode", "dense")
             c[mode if mode in ("dense", "hybrid") else "other"] += 1
     return c
+
 # read tokens, calls and latency from the log’s usage block
 # and falls back to adding up the steps if a field is missing
 def _usage_row(entry: dict | None) -> dict:
-    """calls, max_prompt... lấy từ usage nếu có; không có thì tính từ steps."""
-    
+    """calls, max_prompt... taken from usage if present; otherwise computed from steps."""    
     steps = (entry or {}).get("steps", [])
     u = (entry or {}).get("usage") or {}
     p = u.get("prompt_tokens", sum(s.get("prompt_tokens", 0) for s in steps))
@@ -480,9 +486,9 @@ def _usage_row(entry: dict | None) -> dict:
 # the actual function that will calculate and save the statistics baase on the functions above
 def aggregate(items: list[dict], all_runs: list[dict[str, dict]], refusal_runs: list[dict],
               ragas_runs: list[dict] | None, config: dict) -> tuple[list[dict], dict]:
-    """Gộp kết quả các lượt thành (các dòng CSV theo câu, summary).
-    Trung bình từng lượt trước, rồi lấy trung bình và độ lệch chuẩn qua các lượt.
-    ragas_runs = None nghĩa là --skip-ragas."""
+    """Merge the results of all runs into (per-question CSV rows, summary).
+    Average within each run first, then take the mean and standard deviation across runs.
+    ragas_runs = None means --skip-ragas."""
 
     # one CSV row per (run, question), combining the log, the refusal result and the RAGAS result
     # a question with no log gets error = "missing_result" and zeros
@@ -533,7 +539,7 @@ def aggregate(items: list[dict], all_runs: list[dict[str, dict]], refusal_runs: 
             "per_run": [{k: sum(r[f"n_{k}"] for r in rows if r["run"] == i)
                          for k in ("dense", "hybrid", "other")} for i in range(1, n_runs + 1)],
         },
-        "usage": {      # chỉ tính các câu thực sự có log (câu thiếu kết quả không kéo trung bình về 0)
+        "usage": {      # only count questions that actually have a log (missing results don't pull the average toward 0)
             "n_question_runs": len(present),
             "mean_total_tokens": _mean([r["total_tokens"] for r in present]),
             "mean_prompt_tokens": _mean([r["prompt_tokens"] for r in present]),
@@ -559,19 +565,21 @@ def aggregate(items: list[dict], all_runs: list[dict[str, dict]], refusal_runs: 
 def write_outputs(rows: list[dict], summary: dict, results_dir: Path = RESULTS_DIR) -> tuple[Path, Path]:
     results_dir.mkdir(parents=True, exist_ok=True)
     csv_path, json_path = results_dir / "eval_per_question.csv", results_dir / "eval_summary.json"
-    with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:      # utf-8-sig: Excel đọc đúng tiếng Việt
+    with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:      # utf-8-sig: Excel reads Vietnamese correctly
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         w.writeheader()
         for r in rows:
             w.writerow({k: ("" if r[k] is None else r[k]) for k in CSV_COLUMNS})
     json_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     return csv_path, json_path
+
 # _fmt and print_summary produce the short table: 0.912 ± 0.020 for scores, 
 # n/a when there’s no data, and the file paths at the end.
 def _fmt(stat: dict | None) -> str:
     if not stat or stat.get("mean") is None:
         return "n/a"
     return f"{stat['mean']:.3f}" + (f" ± {stat['std']:.3f}" if stat.get("std") is not None else "")
+
 def print_summary(summary: dict, csv_path: Path, json_path: Path) -> None:
     c, rg, rf = summary["config"], summary["ragas"], summary["refusal"]
     m, u = summary["modes"], summary["usage"]
@@ -592,12 +600,13 @@ def print_summary(summary: dict, csv_path: Path, json_path: Path) -> None:
           f"{u['mean_calls']} lượt gọi LLM | max_prompt lớn nhất = {u['max_prompt_max']}")
     print(f"File kết quả           {csv_path}\n                       {json_path}")
 
-#_____Read reused logs
+# Read reused logs
 def latest_log(run_index: int) -> Path | None:
     files = sorted(LOG_DIR.glob(f"eval_run{run_index}_*.jsonl"))
     return files[-1] if files else None
+
 def load_logs(runs: int) -> tuple[list[dict[str, dict]], list[Path]]:
-    """Đọc log eval mới nhất của từng lượt thành {id câu: dòng log}, không chạy lại agent."""
+    """Read the latest eval log of each run into {question id: log line}, without re-running the agent."""
     all_runs, paths = [], []
     for r in range(1, runs + 1):
         path = latest_log(r)
@@ -608,9 +617,10 @@ def load_logs(runs: int) -> tuple[list[dict[str, dict]], list[Path]]:
         paths.append(path)
     return all_runs, paths
 
-# ───────────────────────── Mốc kiểm tra ─────────────────────────
+# Self-test checkpoints
+
 def _selftest_refusal() -> None:
-    """3 câu trả lời giả: từ chối đúng / bịa / hết MAX_STEPS. Kỳ vọng: đạt, trượt, trượt."""
+    """3 fake answers: correct refusal / fabricated / ran out of MAX_STEPS. Expected: pass, fail, fail."""
     items = [
         {"id": "N1", "type": "no_answer", "scope": "in_domain",
          "expected": {"refusal_markers": ["không đề cập", "không có quy định"]}},
@@ -633,10 +643,8 @@ def _selftest_refusal() -> None:
     assert got[2][1] is False and "not_finished" in got[2][2]
     print("selftest OK")
 
-# add new 2 self tests
 def _selftest_ragas() -> None:
-    """Nhãn trạng thái + cache + retry của score_ragas, dùng giám khảo giả (không gọi API)."""
-    
+    """Status labels + cache + retry of score_ragas, using a fake judge (no API calls)."""    
     import tempfile
     calls: Counter = Counter()
     async def fake_judge(sample: dict) -> dict:
@@ -668,8 +676,9 @@ def _selftest_ragas() -> None:
         cached = json.loads((Path(tmp) / "ragas_run1.json").read_text(encoding="utf-8"))
         assert list(cached) == ["A"] # judge_error is not cache-d
     print("selftest ragas OK")
+
 def _selftest_aggregate() -> None:
-    """Số liệu tổng hợp với 3 lượt giả mà kết quả tính tay được."""
+    """Aggregated figures with 3 fake runs whose results can be computed by hand."""
     import tempfile
     items = [
         {"id": "Q1", "type": "answerable", "ragas": True, "question": "q1", "reference": "r"},
@@ -710,7 +719,7 @@ def _selftest_aggregate() -> None:
         assert csv_path.read_bytes().startswith(b"\xef\xbb\xbf") # utf-8-sig for vnese
         with open(csv_path, encoding="utf-8-sig", newline="") as f:
             back = list(csv.DictReader(f))
-        assert list(back[0]) == CSV_COLUMNS and len(back) == 6 and "group" not in back[0]
+        assert list(back[0]) == CSV_COLUMNS and len(back) == 6
         assert json.loads(json_path.read_text(encoding="utf-8"))["config"]["runs"] == 3
     print("selftest aggregate OK")
 
@@ -734,6 +743,7 @@ def main() -> None:
     if args.selftest:
         _selftest()
         return
+    
     started = datetime.now()
     items = load_testset()
     summarize_testset(items)

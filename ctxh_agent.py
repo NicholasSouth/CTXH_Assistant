@@ -30,7 +30,7 @@ PROMPT_PATH = _HERE / "template" / "system_prompt.txt"
 
 MAX_STEPS = 8            
 OBS_MAX_CHARS = 6000     # Prevent overly long Observations from bloating the prompt
-MAX_HISTORY_TURNS = 5    # # Keep only the last 5 turns (question + final answer)
+MAX_HISTORY_TURNS = 5    # Keep only the last 5 turns (question + final answer)
 CONTEXT_TOOLS = {"search_documents", "get_document", "find_activity"}
 WRITE_TOOLS = {"register_activity"} 
 LOG_DIR = _HERE / "logs"
@@ -113,7 +113,7 @@ class ToolSpec:
     params: list[ToolParam]
 
 def parse_params(schema: dict) -> list[ToolParam]:
-    """Chuyển JSON schema của server thành dataclass"""
+    """Convert the server's JSON schema into dataclasses"""
     required = set(schema.get("required", []))
     return [ToolParam(name, p.get("type", "any"), name in required,
                       p.get("default"), "default" in p)
