@@ -1,1 +1,177 @@
-
+{
+  "config": {
+    "agent_model": "qwen/qwen3.8-27b",
+    "judge_model": "openai/gpt-oss-120b",
+    "judge_temperature": 0.0,
+    "ragas_version": "0.4.3",
+    "runs": 1,
+    "n_questions": 12,
+    "n_ragas_questions": 8,
+    "std": "sample (n-1)",
+    "reuse_logs": false,
+    "started_at": "2026-10-18T01:40:37",
+    "finished_at": "2026-10-18T02:02:09",
+    "log_files": [
+      "D:\\CTXHAssistant\\logs\\eval_run1_20261018_014039.jsonl"
+    ]
+  },
+  "ragas": {
+    "skipped": false,
+    "faithfulness": {
+      "mean": 0.8177,
+      "std": null,
+      "per_run": [
+        0.8177
+      ]
+    },
+    "context_recall": {
+      "mean": 0.8333,
+      "std": null,
+      "per_run": [
+        0.8333
+      ]
+    },
+    "status_counts": {
+      "scored": 7,
+      "not_finished": 1,
+      "no_context": 0,
+      "judge_error": 0,
+      "per_run": [
+        {
+          "scored": 7,
+          "not_finished": 1,
+          "no_context": 0,
+          "judge_error": 0
+        }
+      ]
+    }
+  },
+  "refusal": {
+    "overall": {
+      "mean": 0.5,
+      "std": null,
+      "per_run": [
+        0.5
+      ]
+    },
+    "by_scope": {
+      "in_domain": {
+        "mean": 1.0,
+        "std": null,
+        "per_run": [
+          1.0
+        ]
+      },
+      "out_of_domain": {
+        "mean": 0.0,
+        "std": null,
+        "per_run": [
+          0.0
+        ]
+      }
+    },
+    "per_run": [
+      {
+        "run": 1,
+        "passed": 2,
+        "total": 4,
+        "rate": 0.5,
+        "by_scope": {
+          "in_domain": {
+            "total": 2,
+            "passed": 2,
+            "rate": 1.0
+          },
+          "out_of_domain": {
+            "total": 2,
+            "passed": 0,
+            "rate": 0.0
+          }
+        }
+      }
+    ]
+  },
+  "modes": {
+    "dense": 12,
+    "hybrid": 1,
+    "other": 0,
+    "per_run": [
+      {
+        "dense": 12,
+        "hybrid": 1,
+        "other": 0
+      }
+    ]
+  },
+  "usage": {
+    "n_question_runs": 12,
+    "mean_total_tokens": 9338.4167,
+    "mean_prompt_tokens": 8791.0833,
+    "mean_completion_tokens": 547.3333,
+    "mean_latency_seconds": 70.675,
+    "mean_calls": 3.8333,
+    "max_prompt_max": 5793
+  },
+  "per_question": {
+    "Q01": {
+      "faithfulness": 0.8333,
+      "context_recall": 1.0,
+      "refusal_pass_rate": null
+    },
+    "Q02": {
+      "faithfulness": 1.0,
+      "context_recall": 1.0,
+      "refusal_pass_rate": null
+    },
+    "Q03": {
+      "faithfulness": 1.0,
+      "context_recall": 1.0,
+      "refusal_pass_rate": null
+    },
+    "Q04": {
+      "faithfulness": 1.0,
+      "context_recall": 1.0,
+      "refusal_pass_rate": null
+    },
+    "Q05": {
+      "faithfulness": 0.8333,
+      "context_recall": 0.5,
+      "refusal_pass_rate": null
+    },
+    "Q06": {
+      "faithfulness": 0.8571,
+      "context_recall": 1.0,
+      "refusal_pass_rate": null
+    },
+    "Q07": {
+      "faithfulness": 0.2,
+      "context_recall": 0.3333,
+      "refusal_pass_rate": null
+    },
+    "Q08": {
+      "faithfulness": null,
+      "context_recall": null,
+      "refusal_pass_rate": null
+    },
+    "Q09": {
+      "faithfulness": null,
+      "context_recall": null,
+      "refusal_pass_rate": 0.0
+    },
+    "Q10": {
+      "faithfulness": null,
+      "context_recall": null,
+      "refusal_pass_rate": 0.0
+    },
+    "Q11": {
+      "faithfulness": null,
+      "context_recall": null,
+      "refusal_pass_rate": 1.0
+    },
+    "Q12": {
+      "faithfulness": null,
+      "context_recall": null,
+      "refusal_pass_rate": 1.0
+    }
+  }
+}

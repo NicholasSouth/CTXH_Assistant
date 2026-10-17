@@ -1,0 +1,13 @@
+﻿run,id,type,scope,finished,error,ragas_status,calls,steps,prompt_tokens,completion_tokens,total_tokens,max_prompt,latency_seconds,faithfulness,context_recall,refusal_passed,refusal_reasons,n_contexts,n_dense,n_hybrid,n_other
+1,Q01,answerable,,True,,scored,3,3,6254,447,6701,2828,4.28,0.8333,1.0,,,9,1,0,0
+1,Q02,answerable,,True,,scored,2,2,3443,238,3681,1844,20.96,1.0,1.0,,,5,1,0,0
+1,Q03,answerable,,True,,scored,4,4,10485,1181,11666,3790,91.17,1.0,1.0,,,13,1,0,0
+1,Q04,answerable,,True,,scored,3,3,5783,341,6124,2386,48.53,1.0,1.0,,,8,1,0,0
+1,Q05,answerable,,True,,scored,3,3,5316,480,5796,2014,45.62,0.8333,0.5,,,4,1,0,0
+1,Q06,answerable,,True,,scored,3,3,5477,484,5961,2016,46.56,0.8571,1.0,,,3,1,0,0
+1,Q07,answerable,,True,,scored,4,4,7057,345,7402,1904,61.25,0.2,0.3333,,,1,0,0,0
+1,Q08,answerable,,False,,not_finished,8,8,18079,411,18490,2680,153.88,,,,,6,0,0,0
+1,Q09,no_answer,out_of_domain,True,,,1,1,1583,322,1905,1583,14.17,,,False,no_search;no_refusal_marker,0,0,0,0
+1,Q10,no_answer,out_of_domain,True,,,3,3,5755,343,6098,2257,50.31,,,False,no_refusal_marker,11,2,0,0
+1,Q11,no_answer,in_domain,True,,,4,4,8893,954,9847,2908,76.16,,,True,,15,2,0,0
+1,Q12,no_answer,in_domain,True,,,8,8,27368,1022,28390,5793,235.21,,,True,,26,2,1,0
