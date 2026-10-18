@@ -1,0 +1,37 @@
+{
+  "Q01": {
+    "key": "6672074452adc65fe4ffb425b3f1cd1966b8d16e",
+    "faithfulness": 1.0,
+    "context_recall": 1.0
+  },
+  "Q02": {
+    "key": "cf70ff21094f809d83ddd67b5391f273870955df",
+    "faithfulness": 1.0,
+    "context_recall": 1.0
+  },
+  "Q03": {
+    "key": "e7a38e05b518e00f55186af0183f2eaac94a04b5",
+    "faithfulness": 1.0,
+    "context_recall": 1.0
+  },
+  "Q04": {
+    "key": "a4e329540cd5400997ff48c4a14a0b30e25c083a",
+    "faithfulness": 1.0,
+    "context_recall": 1.0
+  },
+  "Q05": {
+    "key": "b10da68877357fb92fe43d4a52d985c50b5bad1a",
+    "faithfulness": 0.5714,
+    "context_recall": 0.5
+  },
+  "Q06": {
+    "key": "1173f739acf334ade4915cc9b80dbd501f246f46",
+    "faithfulness": 0.8889,
+    "context_recall": 1.0
+  },
+  "Q07": {
+    "key": "a8b9db5515e9170e8a120ff047af4ab8ad3c3ca6",
+    "faithfulness": 0.5833,
+    "context_recall": 0.5
+  }
+}

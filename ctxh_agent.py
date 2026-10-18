@@ -215,7 +215,7 @@ def split_contexts(tool: str, obs: str) -> list[str]:
     """Split the Observation into smaller contexts, each context is a separate chunk."""
     if tool == "search_documents":
         # Search results: chunks separated by blank lines
-        parts = [p.strip() for p in re.split(r"\n\n+", obs)]
+        parts = [p.strip() for p in re.split(r"\n\n(?=DOC_\d+ \[)", obs)]
     elif tool == "find_activity":
         # Each line is an activity code
         parts = [p.strip() for p in obs.split("\n")]
