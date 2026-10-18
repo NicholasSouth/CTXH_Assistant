@@ -127,6 +127,8 @@ def _slots_left(activity: Activity, regs: list[Registration]) -> int:
     taken = sum(1 for r in regs if r.activity_id == activity.activity_id)
     # use max incase event overbook -> remaining is negative -> use max to show 0 instead
     return max(0, activity.capacity - taken)
+def _tag(doc_id: str, meta: dict) -> str:
+    return f"{doc_id} [{meta.get('version', '?')}, {meta.get('date', '?')}]"
 #_____ Helpers list end.
 
 @mcp.tool()
@@ -143,7 +145,7 @@ def search_documents(query: str, top_k: int = 3, mode: str = "dense") -> str:
     'Error: ...'.
 
     Returns up to top_k passages (default 3, max 8), most relevant first, one block
-    each, formatted as 'doc_id: passage text'. Passages are short and may be cut
+    each, formatted as 'doc_id [version, date]: passage text'. Passages are short and may be cut
     off; call get_document with the doc_id for the full text. If nothing is found,
     returns 'No relevant passages found in the corpus'.
     Use this first for any question about the rules.
@@ -159,7 +161,7 @@ def search_documents(query: str, top_k: int = 3, mode: str = "dense") -> str:
         return f"Error: unknown mode '{mode}'. Use 'dense' or 'hybrid'."
     if not results:
         return "No relevant passages found in the corpus"
-    return "\n\n".join(f"{c.doc_id}: {c.content}" for c, _s in results)
+    return "\n\n".join(f"{_tag(c.doc_id, c.metadata)}: {c.content}" for c, _s in results)
 
 @mcp.tool()
 def get_document(doc_id: str) -> str:
@@ -184,7 +186,7 @@ def get_document(doc_id: str) -> str:
         return f"No document with id '{doc_id}'."
     # sort the chunks in order too, make it easier for the agent to understand the context
     chunks.sort(key=lambda c: c.chunk_index)
-    text = '\n'.join(c.content for c in chunks)
+    text = _tag(doc_id, chunks[0].metadata) + '\n' + '\n'.join(c.content for c in chunks)
     # cap the text at 6000 (original 400) incase overloading
     if len(text) > 6000:
         text = text[:6000] + '\n[... truncated ...]'
@@ -201,7 +203,7 @@ def list_documents() -> str:
     docs = STORE.list_all()
     if not docs:
         return 'No documents in the corpus'
-    return '\n'.join(f'{d.doc_id}: {d.title}' for d in docs)
+    return '\n'.join(f'{_tag(d.doc_id, d.metadata)}: {d.title}' for d in docs)
 
 @mcp.tool()
 def find_activity(query: str) -> str:
